@@ -27,7 +27,7 @@
 #include <list>
 #include <string>
 #include <Windows.h>
-#include "third/freeimage/freeimage.h"
+#include "freeimage.h"
 
 using namespace framepacker;
 
