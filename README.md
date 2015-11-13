@@ -24,6 +24,8 @@ I made **framepacker** a command line tool which accepts arguments as follow:
   * := -w      : Disable forcing texture to POT (Power of 2)
   * := -m      : Disable alpha trim
 
+For example, we may write a command line as: **framepacker** foo.png bar.png -o out, and it will generate a packed `out.png` image file and another `out.json` meta data file which includes packed frame information.
+
 ## Performance
 
 **framepacker** is fast, it packs 200 textures in less than 0.15s on common desktop machines.
