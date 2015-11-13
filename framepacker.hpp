@@ -585,19 +585,19 @@ private:
 	}
 
 	node::ptr_type grow(int w, int h) {
-		bool canGrowDown = w <= root->width();
-		bool canGrowRight = h <= root->height();
+		bool can_grow_down = w <= root->width();
+		bool can_grow_right = h <= root->height();
 
-		bool shouldGrowRight = canGrowRight && (root->height() >= (root->width() + w));
-		bool shouldGrowDown  = canGrowDown && (root->width() >= (root->height() + h));
+		bool should_grow_right = can_grow_right && (root->height() >= (root->width() + w));
+		bool should_grow_down  = can_grow_down && (root->width() >= (root->height() + h));
 
-		if(shouldGrowRight)
+		if(should_grow_right)
 			return grow_right(w, h);
-		else if(shouldGrowDown)
+		else if(should_grow_down)
 			return grow_down(w, h);
-		else if(canGrowRight)
+		else if(can_grow_right)
 			return grow_right(w, h);
-		else if(canGrowDown)
+		else if(can_grow_down)
 			return grow_down(w, h);
 		else
 			return NULL;
