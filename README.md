@@ -1,16 +1,18 @@
 **Copyright (C) 2015 [Wang Renxin](https://cn.linkedin.com/pub/wang-renxin/43/494/20). All rights reserved.**
 
-**framepacker** is a freeware of texture bin packing.
+**framepacker** is a freeware with texture bin packing algorithm. It's similar to texture tools such as TexturePacker, and far beyond, it's totally open source thus you can use, copy, modify, distribute it free.
 
 ## Algorithm
 
-I used a bin packer algorithm refer to [Jake Gordon's project](https://github.com/jakesgordon/bin-packing).
+I used a bin packer algorithm refer to the [Binary Tree Bin Packing Algorithm](http://codeincomplete.com/posts/2011/5/7/bin_packing/).
 
 ## Code with framepacker
 
-**framepacker** is implemented with C++ template, it requires a C++11 compatible compiler. `framepacker::packer` is where the pack algorithm is.
+**framepacker** is implemented with C++ template, I used a little C++11 standard (Shared Pointer), so it requires a C++11 compatible compiler. The `framepacker::packer` template class in `framepacker.hpp` is where the pack algorithm is; I did a template specializations in `main.cpp` using another open source FreeImage. Guess it'd be a good start to customize your own packer on **framepacker**.
 
 ## Usage
+
+I made **framepacker** a command line tool which accepts arguments as follow:
 
  * framepacker FILE_LIST [-o output_file] [OPTIONS] - Packs some images
  * FILE_LIST
