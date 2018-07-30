@@ -1,7 +1,5 @@
 # framepacker
 
-**Copyright (C) 2015 [Wang Renxin](https://github.com/paladin-t). All rights reserved.**
-
 **framepacker** is a freeware with texture bin packing algorithm. It's similar to texture tools such as TexturePacker, and far beyond, it's totally open source thus you can use, copy, modify, distribute it free.
 
 ## Algorithm
