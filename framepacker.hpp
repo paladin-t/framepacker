@@ -33,6 +33,8 @@
 #include <memory>
 #include <string>
 
+#include <cmath>
+
 namespace framepacker {
 
 struct match_path_separator { bool operator () (char ch) const { return ch == '\\' || ch == '/'; } };
@@ -170,11 +172,7 @@ struct node : public rect {
 		width(w);
 		height(h);
 	}
-	node(const node &o) {
-		min_x(o.min_x());
-		min_y(o.min_y());
-		max_x(o.max_x());
-		max_y(o.max_y());
+	node(const node &o) : rect(o) {
 		used = o.used;
 		down = o.down;
 		right = o.right;
@@ -250,8 +248,8 @@ struct block {
 			int maxy = std::numeric_limits<int>::min();
 
 			bool found = false;
-			for(int j = 0; j < texture->height(); j++) {
-				for(int i = 0; i < texture->width(); i++) {
+			for(int j = 0; j < int(texture->height()); j++) {
+				for(int i = 0; i < int(texture->width()); i++) {
 					if(!texture->is_transparent(i, j)) {
 						miny = j;
 						found = true;
@@ -264,7 +262,7 @@ struct block {
 			}
 			found = false;
 			for(int j = texture->height() - 1; j >= 0; j--) {
-				for(int i = 0; i < texture->width(); i++) {
+				for(int i = 0; i < int(texture->width()); i++) {
 					if(!texture->is_transparent(i, j)) {
 						maxy = j;
 						found = true;
@@ -276,7 +274,7 @@ struct block {
 					break;
 			}
 			found = false;
-			for(int i = 0; i < texture->width(); i++) {
+			for(int i = 0; i < int(texture->width()); i++) {
 				for(int j = miny; j <= maxy; j++) {
 					if(!texture->is_transparent(i, j)) {
 						minx = i;
@@ -365,7 +363,7 @@ public:
 	static bool compare_smart(const texture_item_type &l, const texture_item_type &r) {
 		return l.second.valid.width() < r.second.valid.width();
 	}
-	static bool compare_rand(const texture_item_type &l, const texture_item_type &r) {
+	static bool compare_rand(const texture_item_type &, const texture_item_type &) {
 		return std::rand() % 100 < 50;
 	}
 	static bool compare_width(const texture_item_type &l, const texture_item_type &r) {
@@ -388,7 +386,7 @@ public:
 	}
 
 	const block_type* get(const name_type &name) const {
-		for(texture_coll_type::const_iterator it = images.begin(); it != images.end(); ++it) {
+		for(auto it = images.begin(); it != images.end(); ++it) {
 			const texture_item_type &i = *it;
 			const block_type &blk = i.second;
 			if(i.first == name)
@@ -410,7 +408,7 @@ public:
 		if(!get(name))
 			return false;
 
-		for(texture_coll_type::iterator it = images.begin(); it != images.end(); ++it) {
+		for(auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
 			if(i.first == name) {
@@ -433,7 +431,7 @@ public:
 	}
 
 	void tidy(void) {
-		for(texture_coll_type::iterator it = images.begin(); it != images.end(); ++it) {
+		for(auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
 			blk.clear();
@@ -449,8 +447,8 @@ public:
 			s << get_indent() << "frames : {" << std::endl;
 			{
 				indent++;
-				int i = 0;
-				for(texture_coll_type::const_iterator it = p.begin(); it != p.end(); ++it) {
+				unsigned int i = 0;
+				for(auto it = p.begin(); it != p.end(); ++it) {
 					const block_type &blk = it->second;
 					s << get_indent() << blk.name << " : {" << std::endl;
 					blk.write_meta(s, indent, padding);
@@ -501,17 +499,17 @@ public:
 			root = node::ptr_type(new node(0, 0, output_texture_size.x, output_texture_size.y));
 		}
 		node::ptr_type nd = NULL;
-		for(texture_coll_type::iterator it = images.begin(); it != images.end(); ++it) {
+		for(auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
-			if(nd = find(root, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2)))
+			if((nd = find(root, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2))))
 				blk.fit = split(nd, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2));
 			else
 				blk.fit = grow(blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2));
 
 			if(!blk.fit && allow_rotate) {
 				blk.rotated = true;
-				if(nd = find(root, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2)))
+				if((nd = find(root, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2))))
 					blk.fit = split(nd, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2));
 				else
 					blk.fit = grow(blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2));
@@ -530,7 +528,7 @@ public:
 			os.y = (int)std::pow(2, std::ceil(std::log(os.y) / std::log(2)));
 		}
 		result->resize(os.x, os.y);
-		for(texture_coll_type::iterator it = packed.begin(); it != packed.end(); ++it) {
+		for(auto it = packed.begin(); it != packed.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
 			if(blk.rotated) {
@@ -611,7 +609,7 @@ private:
 		root = node::ptr_type(r);
 
 		node::ptr_type node = NULL;
-		if(node = find(root, w, h))
+		if((node = find(root, w, h)))
 			return split(node, w, h);
 		else
 			return NULL;
@@ -624,7 +622,7 @@ private:
 		root = node::ptr_type(r);
 
 		node::ptr_type node = NULL;
-		if(node = find(root, w, h))
+		if((node = find(root, w, h)))
 			return split(node, w, h);
 		else
 			return NULL;
