@@ -190,7 +190,7 @@ public:
 	}
 
 	bool save_png(const char* p) noexcept {
-		return stbi_write_png(p, w, h, 4, color_buffer, w * 4) == 0;
+		return stbi_write_png(p, w, h, 4, color_buffer, w * 4) != 0;
 	}
 
 private:
