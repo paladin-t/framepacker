@@ -23,8 +23,8 @@
 ** CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef __FRAMEPACKER_H__
-#define __FRAMEPACKER_H__
+#ifndef FRAMEPACKER_FRAMEPACKER_HPP
+#define FRAMEPACKER_FRAMEPACKER_HPP
 
 #include <algorithm>
 #include <fstream>
@@ -656,4 +656,4 @@ private:
 
 }
 
-#endif // __FRAMEPACKER_H__
+#endif // FRAMEPACKER_FRAMEPACKER_HPP
