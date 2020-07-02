@@ -1,2 +1,14 @@
+*.exe
+*.lib
+*.obj
+*.dll
+
+*.a
+*.o
+*.so
+
+build
+
+# TODO : Are these still needed?
 /bin-packing
 /test
