@@ -3,6 +3,7 @@
 **
 ** For the latest info, see https://github.com/paladin-t/framepacker/
 **
+** Copyright (C) 2015, 2020 Wang Renxin
 ** Copyright (C) 2020 Taylor Holberton
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,7 +45,6 @@ using size_type = std::size_t;
 using color_type = unsigned char;
 
 struct rgba final {
-
 	color_type data[4];
 
 	inline static constexpr rgba from_buffer(const color_type* rgba_ptr) noexcept {
@@ -78,14 +78,14 @@ public:
 		h = 0;
 	}
 
-	inline const char* get_path() const noexcept {
+	inline const char* get_path(void) const noexcept {
 		return path.c_str();
 	}
 
-	size_type width() const noexcept {
+	size_type width(void) const noexcept {
 		return w;
 	}
-	size_type height() const noexcept {
+	size_type height(void) const noexcept {
 		return h;
 	}
 
@@ -109,26 +109,24 @@ public:
 		dst[3] = c[3];
 	}
 
-	void copy_from(const image &src,
-	               size_type src_x,
-	               size_type src_y,
-	               size_type width,
-	               size_type height,
-	               size_type dst_x,
-	               size_type dst_y) {
-
+	void copy_from(
+		const image &src,
+		size_type src_x,
+		size_type src_y,
+		size_type width,
+		size_type height,
+		size_type dst_x,
+		size_type dst_y
+	) {
 		// TODO : Worth checking if 'src' is ever equal to 'this'.
 		// If not, then we don't need the temporary buffer.
-
-		color_type* tmp = (color_type*) std::malloc(width * height * 4);
+		color_type* tmp = (color_type*)std::malloc(width * height * 4);
 		if (!tmp) {
 			return;
 		}
 
 		// Copy from source onto temporary buffer.
-
 		for (size_type y = 0; y < height; y++) {
-
 			const color_type* src_ptr = src.data(src_x, src_y + y);
 
 			color_type* dst_ptr = &tmp[y * width * 4];
@@ -137,9 +135,7 @@ public:
 		}
 
 		// Copy from temporary buffer to destination.
-
 		for (size_type y = 0; y < height; y++) {
-
 			const color_type* src_ptr = &tmp[y * width * 4];
 
 			color_type* dst_ptr = data(dst_x, dst_y + y);
@@ -155,8 +151,7 @@ public:
 	}
 
 	bool resize(size_type _w, size_type _h) noexcept {
-
-		auto* tmp = (color_type*) std::realloc(color_buffer, _w * _h * 4);
+		auto* tmp = (color_type*)std::realloc(color_buffer, _w * _h * 4);
 		if (!tmp) {
 			return false;
 		}
@@ -169,7 +164,6 @@ public:
 	}
 
 	bool load_file(const char* p) noexcept {
-
 		int tmp_w = 0;
 		int tmp_h = 0;
 		int tmp_n = 0;
@@ -200,7 +194,7 @@ private:
 	size_type h = 0;
 };
 
-using packer_type = framepacker::packer<image>;
+using packer_type = fp::packer<image>;
 
 #define _BIN_FILE_NAME "framepacker"
 
@@ -216,8 +210,9 @@ void show_tip(void) {
 	printf("[Usage]\n");
 	printf("  %s FILE_LIST [-o output_file] [OPTIONS] - Packs some images\n", _BIN_FILE_NAME);
 	printf("\n");
-	printf("  FILE_LIST := file*\n");
-	printf("  OPTIONS   := -p n    : Padding, 1 as default\n");
+	printf("  FILE_LIST := file *  : Eg. file1.png file2.png\n");
+	printf("  OPTIONS   := -p N    : Padding, default to 1\n");
+	printf("            := -s MxN  : Expected texture size, eg. 256x512, may enlarge result\n");
 	printf("            := -t      : Disable rotation\n");
 	printf("            := -w      : Disable forcing texture to POT (Power of 2)\n");
 	printf("            := -m      : Disable alpha trim\n");
@@ -235,24 +230,35 @@ void process_parameters(int argc, char* argv[]) {
 	std::list<std::string> inputs;
 	std::list<std::pair<std::string, std::string> > options;
 
-	// Parses arguments.
-	while(i < argc) {
-		if(!std::memcmp(argv[i], "-", 1)) {
-			if(!std::memcmp(argv[i] + 1, "o", 1)) {
+	// Parse arguments.
+	while (i < argc) {
+		if (!std::memcmp(argv[i], "-", 1)) {
+			if (!std::memcmp(argv[i] + 1, "o", 1)) {
 				m = 'o';
 				_CHECK_ARG(argc, i, "-o: File name expected.\n");
 				options.push_back(std::make_pair(m, argv[++i]));
 				++i;
-			} else if(!memcmp(argv[i] + 1, "p", 1)) {
+			} else if (!memcmp(argv[i] + 1, "p", 1)) {
 				_CHECK_ARG(argc, i, "-p: Padding size expected.\n");
 				padding = std::max(std::atoi(argv[++i]), 0);
-			} else if(!memcmp(argv[i] + 1, "t", 1)) {
+			} else if (!memcmp(argv[i] + 1, "s", 1)) {
+				_CHECK_ARG(argc, i, "-s: Size expected.\n");
+				std::string buf = argv[++i];
+				size_t sep = buf.find('x');
+				if (sep != std::string::npos) {
+					std::string wstr = buf.substr(0, sep);
+					std::string hstr = buf.substr(sep + 1);
+					w = std::atoi(wstr.c_str());
+					h = std::atoi(hstr.c_str());
+				}
+				++i;
+			} else if (!memcmp(argv[i] + 1, "t", 1)) {
 				allow_rotate = false;
 				++i;
-			} else if(!memcmp(argv[i] + 1, "w", 1)) {
+			} else if (!memcmp(argv[i] + 1, "w", 1)) {
 				power_of_2 = false;
 				++i;
-			} else if(!memcmp(argv[i] + 1, "m", 1)) {
+			} else if (!memcmp(argv[i] + 1, "m", 1)) {
 				alpha_trim = false;
 				++i;
 			} else {
@@ -263,10 +269,10 @@ void process_parameters(int argc, char* argv[]) {
 		}
 	}
 
-	// Tells output path.
+	// Tell output path.
 	std::string outpath = "output.png";
-	for(auto it = options.begin(); it != options.end(); ++it) {
-		if(it->first == "o")
+	for (auto it = options.begin(); it != options.end(); ++it) {
+		if (it->first == "o")
 			outpath = it->second;
 	}
 
@@ -278,8 +284,7 @@ void process_parameters(int argc, char* argv[]) {
 	packer.alpha_trim = alpha_trim;
 	packer.comparer = packer_type::compare_area;
 
-	for(auto it = inputs.begin(); it != inputs.end(); ++it) {
-
+	for (auto it = inputs.begin(); it != inputs.end(); ++it) {
 		image* img = new image;
 
 		if (!img->load_file(it->c_str())) {
@@ -291,28 +296,26 @@ void process_parameters(int argc, char* argv[]) {
 		packer.add(it->c_str(), texture);
 	}
 
-	// Packs it.
+	// Pack it.
 	packer_type::texture_type result(new image);
 	packer_type::texture_coll_type packed;
 	packer_type::texture_coll_type failed;
 	packer.pack(result, packed, failed);
 
-	// Prompts.
+	// Prompt.
 	{
-		for(auto it = packed.begin(); it != packed.end(); ++it) {
+		for (auto it = packed.begin(); it != packed.end(); ++it) {
 			packer_type::block_type &blk = it->second;
 			printf("  %s [%d, %d] - [%d, %d]\n", it->first.c_str(), blk.fit->min_x(), blk.fit->min_y(), blk.fit->min_x() + blk.fit->width(), blk.fit->min_y() + blk.fit->height());
 		}
 	}
-	if(failed.size()) {
-		for(auto it = failed.begin(); it != failed.end(); ++it) {
+	if (failed.size()) {
+		for (auto it = failed.begin(); it != failed.end(); ++it) {
 			printf("  %s\n", it->first.c_str());
 		}
 	}
-	{
-	}
 
-	// Serializes.
+	// Serialize.
 	{
 		std::string out_tex = outpath + ".png";
 		result->save_png(out_tex.c_str());
@@ -330,10 +333,9 @@ void process_parameters(int argc, char* argv[]) {
 } // namespace
 
 int main(int argc, char* argv[]) {
-
-	if(argc == 1)
+	if (argc == 1)
 		show_tip();
-	else if(argc >= 2)
+	else if (argc >= 2)
 		process_parameters(argc, argv);
 
 	return 0;

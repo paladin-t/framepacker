@@ -1,30 +1,28 @@
 # framepacker
 
-**framepacker** is a freeware with texture bin packing algorithm. It's similar to texture tools such as TexturePacker, and far beyond, it's totally open source thus you can use, copy, modify, distribute it free.
+**framepacker** is a freeware which implements a texture bin packing algorithm. It's similar to texture tools like the TexturePacker. You are free to use, copy, modify or distribute it under the MIT license.
 
-## Algorithm
+It implements a bin packer algorithm refer to the [Binary Tree Bin Packing Algorithm](http://codeincomplete.com/posts/2011/5/7/bin_packing/).
 
-I used a bin packer algorithm refer to the [Binary Tree Bin Packing Algorithm](http://codeincomplete.com/posts/2011/5/7/bin_packing/).
+## Compile
 
-## Code with framepacker
-
-**framepacker** is implemented with C++ template, I used a little C++11 standard (Shared Pointer), so it requires a C++11 compatible compiler. The `framepacker::packer` template class in `framepacker.hpp` is where the pack algorithm is; I did a template specializations in `main.cpp` using another open source FreeImage. Guess it'd be a good start to customize your own packer on **framepacker**.
+A C++ 11 compiler is required to compile the source code. The `framepacker::packer` template class in `framepacker.hpp` is the algorithm implementation. And it offers a specialization in `framepacker.cpp` using stb image.
 
 ## Usage
 
-I made **framepacker** a command line tool which accepts arguments as follow:
+It works as a command line tool:
 
 * framepacker FILE_LIST [-o output_file] [OPTIONS] - Packs some images
 * FILE_LIST
-	* := file*
+	* := file *  : Eg. file1.png file2.png
 * OPTIONS
-	* := -p n    : Padding, 1 as default
-	* := -s mxn  : Expected texture size, eg. 256x512, may enlarge result
+	* := -p N    : Padding, default to 1
+	* := -s MxN  : Expected texture size, eg. 256x512, may enlarge result
 	* := -t      : Disable rotation
 	* := -w      : Disable forcing texture to POT (Power of 2)
 	* := -m      : Disable alpha trim
 
-For example, we may write a command line as: "**framepacker** foo.png bar.png -o out", and it will generate a packed `out.png` image file and another `out.json` meta data file which includes packed frame information.
+Eg. "**framepacker** foo.png bar.png -o out", it generates a packed `out.png` image and another `out.json` meta data which includes packing information to look up slices from the image.
 
 ## Performance
 

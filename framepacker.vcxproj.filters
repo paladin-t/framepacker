@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="framepacker.hpp" />
+    <ClInclude Include="third\stb_image.h">
+      <Filter>third</Filter>
+    </ClInclude>
+    <ClInclude Include="third\stb_image_write.h">
+      <Filter>third</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="third">
+      <UniqueIdentifier>{ad280806-94bd-4448-9069-70eafe4ee3e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="third\stb_image.cpp">
+      <Filter>third</Filter>
+    </ClCompile>
+    <ClCompile Include="third\stb_image_write.cpp">
+      <Filter>third</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

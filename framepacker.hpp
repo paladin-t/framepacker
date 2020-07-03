@@ -27,17 +27,20 @@
 #define FRAMEPACKER_FRAMEPACKER_HPP
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <list>
 #include <memory>
 #include <string>
 
-#include <cmath>
-
 namespace framepacker {
 
-struct match_path_separator { bool operator () (char ch) const { return ch == '\\' || ch == '/'; } };
+struct match_path_separator {
+	bool operator () (char ch) const {
+		return ch == '\\' || ch == '/';
+	}
+};
 
 std::string basename(const std::string &pathname) {
 	return std::string(std::find_if(pathname.rbegin(), pathname.rend(), match_path_separator()).base(), pathname.end());
@@ -87,22 +90,22 @@ struct rect {
 
 	void min_x(int v) {
 		min.x = v;
-		if(v > max.x)
+		if (v > max.x)
 			max.x = v;
 	}
 	void min_y(int v) {
 		min.y = v;
-		if(v > max.y)
+		if (v > max.y)
 			max.y = v;
 	}
 	void max_x(int v) {
 		max.x = v;
-		if(v < min.x)
+		if (v < min.x)
 			min.x = v;
 	}
 	void max_y(int v) {
 		max.y = v;
-		if(v < min.y)
+		if (v < min.y)
 			min.y = v;
 	}
 
@@ -164,9 +167,9 @@ std::ostream &operator << (std::ostream &s, const rect &r) {
 struct node : public rect {
 	typedef std::shared_ptr<node> ptr_type;
 
-	node() : used(false), down(NULL), right(NULL) {
+	node() : used(false), down(nullptr), right(nullptr) {
 	}
-	node(int x, int y, int w, int h) : used(false), down(NULL), right(NULL) {
+	node(int x, int y, int w, int h) : used(false), down(nullptr), right(nullptr) {
 		min_x(x);
 		min_y(y);
 		width(w);
@@ -182,13 +185,13 @@ struct node : public rect {
 	}
 
 	void clear(void) {
-		if(down) {
+		if (down) {
 			down->clear();
-			down = NULL;
+			down = nullptr;
 		}
-		if(right) {
+		if (right) {
 			right->clear();
-			right = NULL;
+			right = nullptr;
 		}
 	}
 
@@ -201,9 +204,9 @@ template<typename T>
 struct block {
 	typedef T texture_type;
 
-	block() : fit(NULL), rotated(false) {
+	block() : fit(nullptr), rotated(false) {
 	}
-	block(const texture_type &i, const char* p, bool alpha_trim) : fit(NULL), rotated(false) {
+	block(const texture_type &i, const char* p, bool alpha_trim) : fit(nullptr), rotated(false) {
 		texture = i;
 		calc_valid(alpha_trim);
 		path = p;
@@ -231,7 +234,8 @@ struct block {
 	}
 
 	rect valid_area(void) const {
-		if(!rotated) return valid;
+		if (!rotated)
+			return valid;
 
 		rect ret;
 		ret.min = valid.min;
@@ -241,62 +245,62 @@ struct block {
 	}
 
 	void calc_valid(bool alpha_trim) {
-		if(alpha_trim) {
+		if (alpha_trim) {
 			int minx = std::numeric_limits<int>::max();
 			int miny = std::numeric_limits<int>::max();
 			int maxx = std::numeric_limits<int>::min();
 			int maxy = std::numeric_limits<int>::min();
 
 			bool found = false;
-			for(int j = 0; j < int(texture->height()); j++) {
-				for(int i = 0; i < int(texture->width()); i++) {
-					if(!texture->is_transparent(i, j)) {
+			for (int j = 0; j < int(texture->height()); j++) {
+				for (int i = 0; i < int(texture->width()); i++) {
+					if (!texture->is_transparent(i, j)) {
 						miny = j;
 						found = true;
 
 						break;
 					}
 				}
-				if(found)
+				if (found)
 					break;
 			}
 			found = false;
-			for(int j = texture->height() - 1; j >= 0; j--) {
-				for(int i = 0; i < int(texture->width()); i++) {
-					if(!texture->is_transparent(i, j)) {
+			for (int j = texture->height() - 1; j >= 0; j--) {
+				for (int i = 0; i < int(texture->width()); i++) {
+					if (!texture->is_transparent(i, j)) {
 						maxy = j;
 						found = true;
 
 						break;
 					}
 				}
-				if(found)
+				if (found)
 					break;
 			}
 			found = false;
-			for(int i = 0; i < int(texture->width()); i++) {
-				for(int j = miny; j <= maxy; j++) {
-					if(!texture->is_transparent(i, j)) {
+			for (int i = 0; i < int(texture->width()); i++) {
+				for (int j = miny; j <= maxy; j++) {
+					if (!texture->is_transparent(i, j)) {
 						minx = i;
 						found = true;
 
 						break;
 					}
 				}
-				if(found)
+				if (found)
 					break;
 			}
 			found = false;
-			for(int i = texture->width() - 1; i >= 0; i--) {
-				for(int j = miny; j <= maxy; j++) {
-					if(!texture->is_transparent(i, j)) {
+			for (int i = texture->width() - 1; i >= 0; i--) {
+				for (int j = miny; j <= maxy; j++) {
+					if (!texture->is_transparent(i, j)) {
 						maxx = i;
 						found = true;
 
 						break;
 					}
 				}
-				if(found)
+				if (found)
 					break;
 			}
 
@@ -313,7 +317,7 @@ struct block {
 	}
 
 	void clear(void) {
-		if(fit)
+		if (fit)
 			fit->clear();
 		rotated = false;
 	}
@@ -334,7 +338,7 @@ struct block {
 
 	std::string get_indent(int indent) const {
 		std::string ret;
-		for(int i = 0; i < indent; i++)
+		for (int i = 0; i < indent; i++)
 			ret += "\t";
 
 		return ret;
@@ -350,7 +354,6 @@ struct block {
 
 template<typename I, bool per_pixel = false, bool sqrt_area = true>
 class packer {
-
 public:
 	typedef I image_type;
 	typedef std::shared_ptr<image_type> texture_type;
@@ -358,7 +361,7 @@ public:
 	typedef std::string name_type;
 	typedef std::pair<name_type, block_type> texture_item_type;
 	typedef std::list<texture_item_type> texture_coll_type;
-	typedef bool (* texture_compare_type)(const texture_item_type &, const texture_item_type &);
+	typedef bool(*texture_compare_type)(const texture_item_type &, const texture_item_type &);
 
 	static bool compare_smart(const texture_item_type &l, const texture_item_type &r) {
 		return l.second.valid.width() < r.second.valid.width();
@@ -386,17 +389,17 @@ public:
 	}
 
 	const block_type* get(const name_type &name) const {
-		for(auto it = images.begin(); it != images.end(); ++it) {
+		for (auto it = images.begin(); it != images.end(); ++it) {
 			const texture_item_type &i = *it;
 			const block_type &blk = i.second;
-			if(i.first == name)
+			if (i.first == name)
 				return &blk;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 	bool add(const name_type &name, const texture_type &img) {
-		if(get(name))
+		if (get(name))
 			return false;
 
 		images.push_back(texture_item_type(name, block_type(img, name.c_str(), alpha_trim)));
@@ -405,13 +408,13 @@ public:
 		return true;
 	}
 	bool remove(const name_type &name) {
-		if(!get(name))
+		if (!get(name))
 			return false;
 
-		for(auto it = images.begin(); it != images.end(); ++it) {
+		for (auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
-			if(i.first == name) {
+			if (i.first == name) {
 				total_area -= blk.valid.area();
 
 				images.erase(it);
@@ -431,12 +434,12 @@ public:
 	}
 
 	void tidy(void) {
-		for(auto it = images.begin(); it != images.end(); ++it) {
+		for (auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
 			blk.clear();
 		}
-		if(root)
+		if (root)
 			root->clear();
 	}
 
@@ -448,11 +451,11 @@ public:
 			{
 				indent++;
 				unsigned int i = 0;
-				for(auto it = p.begin(); it != p.end(); ++it) {
+				for (auto it = p.begin(); it != p.end(); ++it) {
 					const block_type &blk = it->second;
 					s << get_indent() << blk.name << " : {" << std::endl;
 					blk.write_meta(s, indent, padding);
-					if(i == p.size() - 1)
+					if (i == p.size() - 1)
 						s << get_indent() << "}" << std::endl;
 					else
 						s << get_indent() << "}," << std::endl;
@@ -486,36 +489,36 @@ public:
 		images.sort(comparer);
 
 		// Step 3. Fit.
-		if(output_texture_size.is_zero()) {
-			if(sqrt_area) {
+		if (output_texture_size.is_zero()) {
+			if (sqrt_area) {
 				int s = (int)(std::sqrt(total_area) + 0.5f);
 				root = node::ptr_type(new node(0, 0, s, s));
 			} else {
-				int w = images.size() ? (images.begin()->second.valid.width() + (padding * 2)): 0;
+				int w = images.size() ? (images.begin()->second.valid.width() + (padding * 2)) : 0;
 				int h = images.size() ? (images.begin()->second.valid.height() + (padding * 2)) : 0;
 				root = node::ptr_type(new node(0, 0, w, h));
 			}
 		} else {
 			root = node::ptr_type(new node(0, 0, output_texture_size.x, output_texture_size.y));
 		}
-		node::ptr_type nd = NULL;
-		for(auto it = images.begin(); it != images.end(); ++it) {
+		node::ptr_type nd = nullptr;
+		for (auto it = images.begin(); it != images.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
-			if((nd = find(root, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2))))
+			if ((nd = find(root, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2))))
 				blk.fit = split(nd, blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2));
 			else
 				blk.fit = grow(blk.valid.width() + (padding * 2), blk.valid.height() + (padding * 2));
 
-			if(!blk.fit && allow_rotate) {
+			if (!blk.fit && allow_rotate) {
 				blk.rotated = true;
-				if((nd = find(root, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2))))
+				if ((nd = find(root, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2))))
 					blk.fit = split(nd, blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2));
 				else
 					blk.fit = grow(blk.valid_area().width() + (padding * 2), blk.valid_area().height() + (padding * 2));
 			}
 
-			if(blk.fit)
+			if (blk.fit)
 				packed.push_back(texture_item_type(i.first, block_type(blk)));
 			else
 				failed.push_back(texture_item_type(i.first, block_type(blk)));
@@ -523,26 +526,26 @@ public:
 
 		// Step 4. Draw.
 		vec2 os(root->width(), root->height());
-		if(power_of_2) {
+		if (power_of_2) {
 			os.x = (int)std::pow(2, std::ceil(std::log(os.x) / std::log(2)));
 			os.y = (int)std::pow(2, std::ceil(std::log(os.y) / std::log(2)));
 		}
 		result->resize(os.x, os.y);
-		for(auto it = packed.begin(); it != packed.end(); ++it) {
+		for (auto it = packed.begin(); it != packed.end(); ++it) {
 			texture_item_type &i = *it;
 			block_type &blk = i.second;
-			if(blk.rotated) {
-				for(int j = 0; j < blk.valid.height(); j++) {
-					for(int i = 0; i < blk.valid.width(); i++) {
+			if (blk.rotated) {
+				for (int j = 0; j < blk.valid.height(); j++) {
+					for (int i = 0; i < blk.valid.width(); i++) {
 						int x = i + blk.fit->min_x() + padding;
 						int y = j + blk.fit->min_y() + padding;
 						result->pixel(y, x, blk.texture->pixel(i + blk.valid.min_x(), j + blk.valid.min_y()));
 					}
 				}
 			} else {
-				if(per_pixel) {
-					for(int j = 0; j < blk.valid.height(); j++) {
-						for(int i = 0; i < blk.valid.width(); i++) {
+				if (per_pixel) {
+					for (int j = 0; j < blk.valid.height(); j++) {
+						for (int i = 0; i < blk.valid.width(); i++) {
 							int x = i + blk.fit->min_x() + padding;
 							int y = j + blk.fit->min_y() + padding;
 							result->pixel(x, y, blk.texture->pixel(i + blk.valid.min_x(), j + blk.valid.min_y()));
@@ -562,15 +565,15 @@ public:
 
 private:
 	node::ptr_type find(node::ptr_type root, int w, int h) {
-		if(root->used) {
+		if (root->used) {
 			node::ptr_type r = find(root->right, w, h);
-			if(!r) r = find(root->down, w, h);
+			if (!r) r = find(root->down, w, h);
 
 			return r;
-		} else if(w <= root->width() && h <= root->height()) {
+		} else if (w <= root->width() && h <= root->height()) {
 			return root;
 		} else {
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -587,18 +590,18 @@ private:
 		bool can_grow_right = h <= root->height();
 
 		bool should_grow_right = can_grow_right && (root->height() >= (root->width() + w));
-		bool should_grow_down  = can_grow_down && (root->width() >= (root->height() + h));
+		bool should_grow_down = can_grow_down && (root->width() >= (root->height() + h));
 
-		if(should_grow_right)
+		if (should_grow_right)
 			return grow_right(w, h);
-		else if(should_grow_down)
+		else if (should_grow_down)
 			return grow_down(w, h);
-		else if(can_grow_right)
+		else if (can_grow_right)
 			return grow_right(w, h);
-		else if(can_grow_down)
+		else if (can_grow_down)
 			return grow_down(w, h);
 		else
-			return NULL;
+			return nullptr;
 	}
 
 	node::ptr_type grow_right(int w, int h) {
@@ -608,11 +611,11 @@ private:
 		r->right = node::ptr_type(new node(root->width(), 0, w, root->height()));
 		root = node::ptr_type(r);
 
-		node::ptr_type node = NULL;
-		if((node = find(root, w, h)))
+		node::ptr_type node = nullptr;
+		if ((node = find(root, w, h)))
 			return split(node, w, h);
 		else
-			return NULL;
+			return nullptr;
 	}
 	node::ptr_type grow_down(int w, int h) {
 		node* r = new node(0, 0, root->width(), root->height() + h);
@@ -621,16 +624,16 @@ private:
 		r->right = root;
 		root = node::ptr_type(r);
 
-		node::ptr_type node = NULL;
-		if((node = find(root, w, h)))
+		node::ptr_type node = nullptr;
+		if ((node = find(root, w, h)))
 			return split(node, w, h);
 		else
-			return NULL;
+			return nullptr;
 	}
 
 	std::string get_indent(void) const {
 		std::string ret;
-		for(int i = 0; i < indent; i++)
+		for (int i = 0; i < indent; i++)
 			ret += "\t";
 
 		return ret;
@@ -651,7 +654,6 @@ private:
 	int total_area;
 
 	int indent;
-
 };
 
 }
